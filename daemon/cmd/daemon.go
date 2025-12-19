@@ -116,9 +116,6 @@ func initAndValidateDaemonConfig(params daemonConfigParams) error {
 		if err != nil {
 			return fmt.Errorf("unable to initialize BPF masquerade support: %w", err)
 		}
-		if params.DaemonConfig.EnableMasqueradeRouteSource {
-			return fmt.Errorf("BPF masquerading to route source (--%s=\"true\") currently not supported with BPF-based masquerading (--%s=\"true\")", option.EnableMasqueradeRouteSource, option.EnableBPFMasquerade)
-		}
 	} else if params.DaemonConfig.EnableIPMasqAgent {
 		return fmt.Errorf("BPF ip-masq-agent requires (--%s=\"true\" or --%s=\"true\") and --%s=\"true\"", option.EnableIPv4Masquerade, option.EnableIPv6Masquerade, option.EnableBPFMasquerade)
 	} else if !params.DaemonConfig.MasqueradingEnabled() && params.DaemonConfig.EnableBPFMasquerade {

@@ -10,6 +10,7 @@
 #include <linux/ip.h>
 #include <linux/icmpv6.h>
 #include <linux/ipv6.h>
+#include <linux/bpf.h>
 
 #include "bpf/compiler.h"
 #include "common.h"
@@ -27,6 +28,7 @@
 DECLARE_CONFIG(union v4addr, nat_ipv4_masquerade, "Masquerade address for IPv4 traffic")
 DECLARE_CONFIG(union v6addr, nat_ipv6_masquerade, "Masquerade address for IPv6 traffic")
 DECLARE_CONFIG(bool, enable_remote_node_masquerade, "Masquerade traffic to remote nodes")
+DECLARE_CONFIG(bool, enable_masquerade_route_source, "Masquerade to the source route IP address instead of the interface one.")
 
 #ifdef ENABLE_NODEPORT
 #define NAT_MIN_EGRESS		NODEPORT_PORT_MIN_NAT
@@ -772,6 +774,21 @@ snat_v4_needs_masquerade(struct __ctx_buff *ctx __maybe_unused,
 	if (local_ep) {
 		target->addr = CONFIG(nat_ipv4_masquerade).be32;
 		return NAT_NEEDED;
+	}
+
+	if (CONFIG(enable_masquerade_route_source)) {
+        struct bpf_fib_lookup fib_params = {
+            .family		= AF_INET,
+            .ipv4_src	= tuple->saddr,
+            .ipv4_dst	= tuple->daddr,
+        };
+
+	    /* Returns < 0 if flags are invalid. */
+        fib_ret = fib_lookup(ctx, &fib_params, sizeof(fib_params), 0);
+        if (fib_ret == 0) {
+			target->addr = fib_params->ipv4_src
+            return NAT_NEEDED;
+        }
 	}
 #endif /*ENABLE_MASQUERADE_IPV4 && IS_BPF_HOST */
 

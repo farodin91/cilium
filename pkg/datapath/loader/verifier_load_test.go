@@ -41,6 +41,7 @@ func hostLoadPermutations() iter.Seq[*config.BPFHost] {
 			cfg.AllowICMPFragNeeded = permutation[3]
 			cfg.EnableICMPRule = permutation[4]
 
+			cfg.EnableMasqueradeRouteSource = permutation[3]
 			if !yield(cfg) {
 				return
 			}

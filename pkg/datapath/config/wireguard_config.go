@@ -18,6 +18,8 @@ type BPFWireguard struct {
 	EnableNetkit bool `config:"enable_netkit"`
 	// Enable routes when service has 0 endpoints.
 	EnableNoServiceEndpointsRoutable bool `config:"enable_no_service_endpoints_routable"`
+	// Masquerade to the source route IP address instead of the interface one.
+	EnableMasqueradeRouteSource bool `config:"enable_masquerade_route_source"`
 	// Masquerade traffic to remote nodes.
 	EnableRemoteNodeMasquerade bool `config:"enable_remote_node_masquerade"`
 	// Ifindex of the interface the bpf program is attached to.
